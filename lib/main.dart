@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:yumemi_weather/yumemi_weather.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,9 +50,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final yumemiWeather = YumemiWeather();
+
   @override
   Widget build(BuildContext context) {
     final placeholderSize = MediaQuery.of(context).size.width / 2;
+
+    final weatherCondition = yumemiWeather.fetchSimpleWeather();
 
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              TemperatureGroup(size: placeholderSize),
+              TemperatureGroup(
+                  size: placeholderSize,
+                  weather: weatherCondition,
+              ),
               const Expanded(child: TemperatureButtons()),
             ],
           ),
@@ -103,15 +112,21 @@ class TemperatureGroup extends StatelessWidget {
   const TemperatureGroup({
     super.key,
     required this.size,
+    required this.weather,
   });
 
   final double size;
+  final String weather;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Placeholder(fallbackHeight: size),
+        SvgPicture.asset(
+            'assets/images/icons/$weather.svg',
+            height: size,
+            width: size,
+        ),
         Row(
           children: const [
             TemperatureText(color: Colors.blue),
