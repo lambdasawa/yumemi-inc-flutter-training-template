@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training/page/green.dart';
 import 'package:flutter_training/page/weather.dart';
 
 void main() {
@@ -15,7 +16,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const WeatherPage(title: 'Flutter Demo Home Page'),
+      routes: <String, WidgetBuilder>{
+        WeatherPage.routes:
+            (context) => const WeatherPage(title: 'Weather Page'),
+      },
+      home: const GreenPage(title: 'Flutter Demo Home Page'),
     );
   }
 }

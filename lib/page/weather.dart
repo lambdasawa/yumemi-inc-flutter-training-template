@@ -5,6 +5,8 @@ import 'package:yumemi_weather/yumemi_weather.dart';
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key, required this.title});
 
+  static const routes = '/weather';
+
   final String title;
 
   @override
@@ -35,7 +37,16 @@ class _WeatherPageState extends State<WeatherPage> {
                 size: placeholderSize,
                 weather: weatherCondition,
               ),
-              const Expanded(child: _TemperatureButtons()),
+              Expanded(
+                child: _TemperatureButtons(
+                  onClose: () {
+                    Navigator.of(context).pop();
+                  },
+                  onReload: () {
+                    setState(() {});
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -47,7 +58,12 @@ class _WeatherPageState extends State<WeatherPage> {
 class _TemperatureButtons extends StatelessWidget {
   const _TemperatureButtons({
     super.key,
+    required this.onClose,
+    required this.onReload,
   });
+
+  final VoidCallback onClose;
+  final VoidCallback onReload;
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +71,13 @@ class _TemperatureButtons extends StatelessWidget {
       children: [
         Expanded(
           child: TextButton(
-            onPressed: () {},
+            onPressed: onClose,
             child: const Text('Close'),
           ),
         ),
         Expanded(
           child: TextButton(
-            onPressed: () {},
+            onPressed: onReload,
             child: const Text('Reload'),
           ),
         ),
@@ -72,7 +88,6 @@ class _TemperatureButtons extends StatelessWidget {
 
 class _TemperatureGroup extends StatelessWidget {
   const _TemperatureGroup({
-    super.key,
     required this.size,
     required this.weather,
   });
