@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -16,11 +18,54 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   final yumemiWeather = YumemiWeather();
 
+  String? weatherCondition;
+
+  @override
+  void initState() {
+    super.initState();
+    reload();
+  }
+
+  void close() {
+    Navigator.of(context).pop();
+  }
+
+  void reload() {
+    try {
+      setState(() {
+        weatherCondition = yumemiWeather.fetchThrowsWeather('tokyo');
+      });
+    } on YumemiWeatherError catch (e) {
+      switch (e) {
+        case YumemiWeatherError.unknown:
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => showDialog<void>(
+              context: context,
+              builder: (context) => const AlertDialog(
+                title: Text('未知のエラーが発生しました。'),
+                content: Text('しばらく時間をおいて再度実行してください'),
+              ),
+            ),
+          );
+          break;
+        case YumemiWeatherError.invalidParameter:
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => showDialog<void>(
+              context: context,
+              builder: (context) => const AlertDialog(
+                title: Text('不正なパラメータが入力されました。'),
+                content: Text('入力値を再確認してもう一度実行してください。'),
+              ),
+            ),
+          );
+          break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final placeholderSize = MediaQuery.of(context).size.width / 2;
-
-    final weatherCondition = yumemiWeather.fetchSimpleWeather();
 
     return Scaffold(
       appBar: AppBar(
@@ -39,12 +84,8 @@ class _WeatherPageState extends State<WeatherPage> {
               ),
               Expanded(
                 child: _TemperatureButtons(
-                  onClose: () {
-                    Navigator.of(context).pop();
-                  },
-                  onReload: () {
-                    setState(() {});
-                  },
+                  onClose: close,
+                  onReload: reload,
                 ),
               ),
             ],
@@ -93,17 +134,20 @@ class _TemperatureGroup extends StatelessWidget {
   });
 
   final double size;
-  final String weather;
+  final String? weather;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SvgPicture.asset(
-          'assets/images/icons/$weather.svg',
-          height: size,
-          width: size,
-        ),
+        if (weather != null)
+          SvgPicture.asset(
+            'assets/images/icons/$weather.svg',
+            height: size,
+            width: size,
+          )
+        else
+          Placeholder(fallbackHeight: size, fallbackWidth: size),
         Row(
           children: const [
             _TemperatureText(color: Colors.blue),
