@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_training/api/weather/client.dart';
+import 'dart:convert';
+import 'package:flutter_training/api/weather/req.dart';
+import 'package:flutter_training/api/weather/res.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 
@@ -18,7 +22,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  final yumemiWeather = YumemiWeather();
+  final weatherClient = WeatherClient();
 
   String? weatherCondition;
 
@@ -34,17 +38,15 @@ class _WeatherPageState extends State<WeatherPage> {
 
   void reload() {
     try {
-      const req = '''
-         {
-             "area": "tokyo",
-             "date": "2020-04-01T12:00:00+09:00"
-         }
-       ''';
+      final weatherRes = weatherClient.fetch(
+        WeatherReq(
+          area: 'tokyo',
+          date: DateTime.parse('2020-04-01T12:00:00+09:00'),
+        ),
+      );
 
       setState(() {
-        final res = yumemiWeather.fetchWeather(req);
-
-        weatherCondition = jsonDecode(res)['weather_condition'] as String;
+        weatherCondition = weatherRes.weatherCondition;
       });
     } on YumemiWeatherError catch (e) {
       switch (e) {
