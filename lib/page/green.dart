@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_training/page/weather.dart';
-import 'package:yumemi_weather/yumemi_weather.dart';
+import 'package:flutter_training/utils/after_end_of_frame.dart';
 
 class GreenPage extends StatefulWidget {
   const GreenPage({super.key, required this.title});
@@ -12,7 +11,7 @@ class GreenPage extends StatefulWidget {
   State<GreenPage> createState() => _GreenPageState();
 }
 
-class _GreenPageState extends State<GreenPage> {
+class _GreenPageState extends State<GreenPage> with AfterEndOfFrame {
   @override
   void initState() {
     super.initState();
@@ -34,15 +33,15 @@ class _GreenPageState extends State<GreenPage> {
   }
 
   Future<void> pushWeatherPage() async {
-    await WidgetsBinding.instance.endOfFrame;
+    await runAfterEndOfFrame(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (!context.mounted) return;
 
-    if (!context.mounted) return;
+      await Navigator.pushNamed(context, WeatherPage.routes);
 
-    await Navigator.pushNamed(context, WeatherPage.routes);
-
-    await pushWeatherPage();
+      await pushWeatherPage();
+    });
   }
 
   @override
