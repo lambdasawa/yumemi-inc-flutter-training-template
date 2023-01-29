@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
@@ -32,8 +34,17 @@ class _WeatherPageState extends State<WeatherPage> {
 
   void reload() {
     try {
+      const req = '''
+         {
+             "area": "tokyo",
+             "date": "2020-04-01T12:00:00+09:00"
+         }
+       ''';
+
       setState(() {
-        weatherCondition = yumemiWeather.fetchThrowsWeather('tokyo');
+        final res = yumemiWeather.fetchWeather(req);
+
+        weatherCondition = jsonDecode(res)['weather_condition'] as String;
       });
     } on YumemiWeatherError catch (e) {
       switch (e) {
